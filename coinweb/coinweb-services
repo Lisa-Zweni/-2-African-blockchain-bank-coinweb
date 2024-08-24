@@ -1,0 +1,42 @@
+import { ethers } from 'ethers';
+
+const COINWEB_API_URL = 'https://coinweb.io/api';
+
+export const connectWallet = async () => {
+  if (typeof window.ethereum !== 'undefined') {
+    try {
+      await window.ethereum.request({ method: 'eth_requestAccounts' });
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      return provider.getSigner();
+    } catch (error) {
+      console.error("Wallet connection failed:", error);
+      return null;
+    }
+  } else {
+    console.error("No Ethereum wallet detected.");
+    return null;
+  }
+};
+
+export const getBalance = async (address) => {
+  try {
+    const response = await axios.get(`${COINWEB_API_URL}/balance/${address}`);
+    return response.data.balance;
+  } catch (error) {
+    console.error("Error fetching balance:", error);
+    return 0;
+  }
+};
+
+export const transferFunds = async (toAddress, amount) => {
+  try {
+    const response = await axios.post(`${COINWEB_API_URL}/transfer`, {
+      to: toAddress,
+      amount,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Transfer failed:", error);
+    return null;
+  }
+};
